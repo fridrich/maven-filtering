@@ -18,6 +18,7 @@
  */
 package org.apache.maven.shared.filtering;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +34,8 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.apache.maven.api.di.testing.MavenDIExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -547,5 +550,25 @@ class FilteringUtilsTest {
             Files.deleteIfExists(from);
             Files.deleteIfExists(to);
         }
+    }
+
+    @Test
+    public void testBinaryFileWithFiltering() throws IOException {
+        Path fromFile = Paths.get(getBasedir() + "/src/test/units-files/binary-file/binary-file");
+        Path toFile = TEST_DIRECTORY.resolve("binary-file-copied");
+        assertDoesNotThrow(() -> FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false));
+        assertArrayEquals(Files.readAllBytes(toFile), Files.readAllBytes(fromFile), "Binary files differ");
     }
 }
