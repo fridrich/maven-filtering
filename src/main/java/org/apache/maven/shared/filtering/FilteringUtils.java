@@ -24,6 +24,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.FileSystemException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -414,6 +415,9 @@ public final class FilteringUtils {
                         writer.write(buffer, 0, nRead);
                     }
                 }
+            } catch (MalformedInputException e) {
+                // Most likely a binary; just copy it then
+                return copyUnconditionally(from, to, inputEncoding, outputEncoding, null);
             }
         }
         copyFilePermissions(from, to);
@@ -450,6 +454,9 @@ public final class FilteringUtils {
                     }
                     copied = writer.isModified();
                 }
+            } catch (MalformedInputException e) {
+                // Most likely a binary; just copy it then
+                return copyIfContentsChanged(from, to, inputEncoding, outputEncoding, null);
             }
         }
         copyFilePermissions(from, to);
