@@ -29,6 +29,8 @@ import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.Test;
 
 import static org.codehaus.plexus.testing.PlexusExtension.getBasedir;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -182,5 +184,26 @@ class FilteringUtilsTest {
         assertEquals("java/bin", FilteringUtils.getRelativeFilePath("/usr/local", "/usr/local/java/bin"));
         assertEquals("../../bin", FilteringUtils.getRelativeFilePath("/usr/local/", "/bin"));
         assertEquals("../usr/local/", FilteringUtils.getRelativeFilePath("/bin", "/usr/local/"));
+    }
+
+    @Test
+    void testBinaryFileWithFiltering() throws IOException {
+        File fromFile = new File(getBasedir(), "src/test/units-files/binary-file/binary-file");
+        File toFile = new File(testDirectory, "binary-file-copied");
+        assertDoesNotThrow(() -> FilteringUtils.copyFile(
+                fromFile,
+                toFile,
+                "UTF-8",
+                new FilterWrapper[] {
+                    new FilterWrapper() {
+                        @Override
+                        public Reader getReader(Reader fileReader) {
+                            return fileReader;
+                        }
+                    }
+                },
+                false));
+        assertArrayEquals(
+                Files.readAllBytes(toFile.toPath()), Files.readAllBytes(fromFile.toPath()), "Binary files differ");
     }
 }

@@ -37,6 +37,7 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.interpolation.AbstractValueSource;
 import org.codehaus.plexus.testing.PlexusTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
@@ -90,6 +91,7 @@ class DefaultMavenFileFilterTest {
     }
 
     @Test
+    @Disabled("Superseded by graceful binary file copying")
     void malformedInputReportsEncoding() throws Exception {
         File source = tempDir.resolve("malformed.txt").toFile();
         File destination = tempDir.resolve("filtered.txt").toFile();
